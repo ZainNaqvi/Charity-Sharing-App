@@ -1,12 +1,23 @@
 
 import 'package:charity/Screens/DonorScreens/add_donation.dart';
 import 'package:charity/Screens/auth_screens/signup_screen.dart';
+import 'package:charity/services/firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-
 import '../../provider/obsecure_pswd.dart';
-
+//listen
+// yh code jo likha hai yh user k credentials ko store kar raha hai aur auth akr raha hai 
+// aisa hi ahi na ?
+// yes 
+// now look, jab sign up aur sign in ho jay ga tu add donation ka data bhi store karwana hai firebase py 
+// us k lye alag say collection bnani pary gi?
+// yes yes 
+// ok i am testing // wait plz
+// yes 
+// now test me sign in
 class SignIn extends StatefulWidget {
   const SignIn({Key? key}) : super(key: key);
 
@@ -15,10 +26,47 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-     final _emailController = TextEditingController();
-   final _paswordController = TextEditingController();
+  // class ka instance 
+  Firebaseauth _auth  = Firebaseauth();
+  // creating teh bool here 
+  bool isLoading = false;
+
+     final TextEditingController _emailController = TextEditingController();
+    final TextEditingController _paswordControler = TextEditingController();
+    signInUser()async{
+      setState(() {
+        isLoading=true;
+      });
+     String res = await _auth.signIn(email: _emailController.text.trim(), password: _paswordControler.text);
+     if(res=='success') {
+            setState(() {
+        isLoading=true;
+      });
+      Get.snackbar("Message", "Successfully loged in.");
+  Navigator.push(context, MaterialPageRoute(builder: (context)=>const AddDonation()));
+                        _emailController.clear();
+                        _paswordControler.clear();
+     }
+     else {
+                 setState(() {
+        isLoading=true;
+      });
+      Get.snackbar("Message", res);
+ 
+     }
+
+    }
+  @override
+  void initState() {
+    _emailController.clear();
+    
+    // TODO: implement initState
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
+
+    
  final formKey = GlobalKey<FormState>();
      Widget myTextField(String hintText, Icon preIcon, TextEditingController mycontroller )
   {
@@ -59,10 +107,11 @@ class _SignInState extends State<SignIn> {
                         }
                       }
                       ),
+                      
                     );
-                  
+           
   }
-    final checkObsecure =Provider.of<ObsecurePassword>(context,listen: false);
+    
     return SafeArea(
       child: Scaffold(
         // main column for body
@@ -143,12 +192,14 @@ class _SignInState extends State<SignIn> {
                       SizedBox(height: 20.h),           
                       // Enter email
                      myTextField("Enter Email",const Icon(Icons.email),_emailController),
+                   
                       SizedBox(height: 10.h),
                 
                       // Enter Password
                       Consumer<ObsecurePassword>(
                         builder: (context, value, child) => 
                          TextFormField(
+                          controller:_paswordControler ,
                           obscureText:value.obsecure,
                           decoration: InputDecoration(
                             hintText: "Enter Password",
@@ -164,7 +215,7 @@ class _SignInState extends State<SignIn> {
                             // const Icon(Icons.visibility,color: Colors.orange,),
                             suffixIcon: IconButton(icon: const Icon(Icons.visibility,color: Colors.orange,),onPressed: (){
                         
-                          checkObsecure.checkMyObsecure();
+                          value.checkMyObsecure();
                             },),
                             focusedBorder: OutlineInputBorder(
                               borderSide: const BorderSide(
@@ -202,12 +253,14 @@ class _SignInState extends State<SignIn> {
 
               SizedBox(height: 20.h),
               // Sign Up button
-              InkWell(
+           isLoading?Center(child: CupertinoActivityIndicator(),) :  InkWell(
                 onTap:(){
                   if((formKey.currentState!.validate()))
                   {
-                       Navigator.push(context, MaterialPageRoute(builder: (context)=>const AddDonation()));
-                  
+                    signInUser();
+                  }
+                  else{
+                    return;
                   }
                     },
                 child: Container(

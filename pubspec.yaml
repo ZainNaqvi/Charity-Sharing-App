@@ -37,6 +37,11 @@ dependencies:
   provider: ^6.0.3
   intl: ^0.17.0
   get: ^4.6.5
+  date_format: ^2.0.6
+  firebase_auth: ^3.6.2
+  firebase_core: ^1.20.0
+  cloud_firestore: ^3.4.3
+  uuid: ^3.0.6
 
 dev_dependencies:
   flutter_test:

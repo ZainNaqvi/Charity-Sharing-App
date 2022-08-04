@@ -1,13 +1,19 @@
 
 import 'package:charity/provider/expiry_date.dart';
 import 'package:charity/provider/obsecure_pswd.dart';
+import 'package:charity/widgets/customSnakeBar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:provider/provider.dart';
+import 'Screens/DonorScreens/add_donation.dart';
 import 'Screens/auth_screens/signup_screen.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -35,7 +41,29 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
        primarySwatch: Colors.orange,
         ),
-        home:const SignUp());
+        home:StreamBuilder(
+          stream: FirebaseAuth.instance.idTokenChanges(),
+          builder: (context, snapshot)
+           {
+
+              if(snapshot.connectionState==ConnectionState.active) {
+                    if(snapshot.hasData) {
+
+return AddDonation() ;   }
+
+else if(snapshot.hasError){
+  return showSnakeBar("No internet connection.", context);
+}
+              }
+
+if(snapshot.connectionState==ConnectionState.waiting) {
+return Center(child: CircularProgressIndicator(),);
+}
+          return SignUp();
+        },)
+        
+        
+        );
    
        },
    ),
