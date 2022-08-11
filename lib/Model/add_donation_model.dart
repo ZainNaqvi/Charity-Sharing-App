@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 
 class AddDonationModel {
   late String id;
@@ -7,11 +6,10 @@ class AddDonationModel {
   late String quantity;
   late String description;
   late String category;
-  late String pickUpLock;
-  late String pickUpDate;
-  late String pickUpTime;
-  late String expiryDate;
+  late String pickUpLocation;
+  late String donationDescription;
 
+  late String attachment;
   AddDonationModel({
     required this.id,
     required this.name,
@@ -19,10 +17,10 @@ class AddDonationModel {
     required this.quantity,
     required this.category,
     required this.description,
-    required this.pickUpLock,
-    required this.pickUpDate,
-    required this.pickUpTime,
-    required this.expiryDate,
+    required this.pickUpLocation,
+    required this.donationDescription,
+    required this.attachment,
+
   });
 
   String getId() => id;
@@ -30,11 +28,10 @@ class AddDonationModel {
   String getName() => name;
   String getQuantity() => quantity;
   String getDescription() => description;
-  String getPickUpLocation() => pickUpLock;
-  String getPickUpDate() => pickUpDate;
-  String getPickUpTime() => pickUpTime;
-  String getExpDate() => expiryDate;
+  String getPickUpLocation() => pickUpLocation;
+  String getdonationDescription() => donationDescription;
   String getCategoty() => category;
+  String getattachment() => attachment;
 
   Map<String, dynamic> toJson() => {
         "id": id,
@@ -43,23 +40,24 @@ class AddDonationModel {
         "quantity": quantity,
         "description": description,
         "category": category,
-        "pickUpLock": pickUpLock,
-        "pickUpDate": pickUpDate,
-        "pickUpTime": pickUpTime,
-        "expiryDate": expiryDate,
+        "pickUpLocation": pickUpLocation,
+        "donationDescription": donationDescription,
+        "attachment": attachment,
+   
       };
   AddDonationModel.fromJson(Map<String, dynamic> json) {
     AddDonationModel(
+   
       id: json['id'],
       name: json['name'],
       title: json["title"],
       quantity: json["quantity"],
       category: json["category"],
       description: json["description"],
-      pickUpLock: json["pickUpLock"],
-      pickUpDate: json["pickUpDate"],
-      pickUpTime: json["pickUpTime"],
-      expiryDate: json["expiryDate"],
+      pickUpLocation: json["pickUpLocation"],
+      donationDescription: json["donationDescription"],
+      attachment: json["attachment"],
+
     );
   }
 }

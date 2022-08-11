@@ -16,10 +16,10 @@ class FirebsaeMethods {
     required String quantity,
     required String category,
     required String description,
-    required String pickUpLock,
-    required String pickUpDate,
-    required String pickUpTime,
-    required String expDate,
+    required String pickUpLocation,
+    required String donationDescription,
+    required String attachment,
+
   }) async {
     String res = "Some error occured";
     try {
@@ -31,10 +31,10 @@ class FirebsaeMethods {
         quantity: quantity,
         category: category,
         description: description,
-        pickUpLock: pickUpLock,
-        pickUpDate: pickUpDate,
-        pickUpTime: pickUpTime,
-        expiryDate: expDate,
+        pickUpLocation: pickUpLocation,
+        donationDescription: donationDescription,
+        attachment: attachment,
+   
       );
 
       String id = const Uuid().v1();

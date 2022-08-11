@@ -3,14 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Firebaseauth {
-  // now first we have to craate the instance of the firebase auth
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  // this is the firebase auth instance now we also have to use the firestore so lets do it
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  // as we know that we have to  sign up or create the user first so what we do lets see
-  // first we have to create the function
   Future<String> createUser({
     required String email,
     required String password,
@@ -19,7 +13,6 @@ class Firebaseauth {
     required String location,
   }) 
   async {
-// Function return the fucture Responce in String so
     String res = "Some Error occured ";
     try {
       UserCredential credential = await _auth.createUserWithEmailAndPassword(
