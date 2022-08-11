@@ -1,6 +1,4 @@
 import 'dart:typed_data';
-
-// ok
 import 'package:charity/Screens/Request/add_request.dart';
 import 'package:charity/Screens/Volunteer/volunteer.dart';
 import 'package:charity/Screens/auth_screens/signin_screen.dart';
@@ -21,7 +19,7 @@ class AddDonation extends StatefulWidget {
 
   @override
   State<AddDonation> createState() => _AddDonationState();
-}
+} // wo khaan hai detail screen
 
 class _AddDonationState extends State<AddDonation> {
   final formKey = GlobalKey<FormState>();
@@ -233,52 +231,46 @@ class _AddDonationState extends State<AddDonation> {
         ],
       ),
       drawer: Container(
-        width: 250.w,
+        width: 250.h,
         child: Drawer(
-          backgroundColor: Colors.white,
-          child: ListView(
-            //      crossAxisAlignment: CrossAxisAlignment.center,
-            padding: const EdgeInsets.all(0),
-            children: [
-              DrawerHeader(
-                decoration: const BoxDecoration(
-                  color: Colors.orange,
-                ),
-                child: Expanded(
-                  child: Row(
-                    children: const [
-                      CircleAvatar(
-                        backgroundColor: Colors.black,
-                      ),
-                      SizedBox(
-                        width: 20,
-                      ),
-                      ListTile(
-                        title: Text("Awais"),
-                      )
-                    ],
-                  ),
+            child: ListView(
+          // Important: Remove any padding from the ListView.
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const UserAccountsDrawerHeader(
+              accountName: const Text("Maab"),
+              accountEmail: Text("maab977@gmail.com"),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Colors.orange,
+                child: const Text(
+                  "A",
+                  style: const TextStyle(fontSize: 40.0),
                 ),
               ),
-              const SizedBox(
-                height: 20,
-              ),
-              customButton("Donate", 1),
-              SizedBox(
-                height: 40.h,
-              ),
-              customButton("Request", 2),
-              SizedBox(
-                height: 40.h,
-              ),
-              customButton("Volunteer", 4),
-              SizedBox(
-                height: 40.h,
-              ),
-              customButton("Log out", 3),
-            ],
-          ),
-        ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.home),
+              title: const Text("Home"),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text("Settings"),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.contacts),
+              title: const Text("Contact Us"),
+              onTap: () {
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        )),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -497,8 +489,6 @@ class _AddDonationState extends State<AddDonation> {
                       ),
                     ),
                     SizedBox(height: 10.h),
-
-                    // choose pick up time
 
                     Consumer<ExpiryDate>(
                       builder: (context, value, child) => TextFormField(

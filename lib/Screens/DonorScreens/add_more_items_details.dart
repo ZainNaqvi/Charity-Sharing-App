@@ -53,28 +53,84 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
       body: Column(
         children: [
           GetBuilder<AddMoreList>(builder: (value) {
-            return Column(
-              children: [
-                ListView.builder(
-                  shrinkWrap: true,
-                  scrollDirection: Axis.vertical,
-                  itemCount: value.list.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: const CircleAvatar(
-                        backgroundColor: Colors.orange,
-                      ),
-                      title: Text("${value.list[index]['title']}"),
-                      subtitle: Text("${value.list[index]['name']}"),
-                    );
-                  },
-                ),
-                ElevatedButton(
-                    onPressed: () async {
-                      await submit();
+            return Expanded(
+              child: Column(
+                children: [
+                  DataTable(columns: [
+                    DataColumn(
+                      label: Text('Title'),
+                    ),
+                    DataColumn(
+                      label: Text('Name'),
+                    ),
+                    DataColumn(
+                      label: Text('pickUp'),
+                    ),
+                    DataColumn(
+                      label: Text('Quantity'),
+                    ),
+                    DataColumn(
+                      label: Text('Exp date'),
+                    ),
+                    DataColumn(
+                      label: Text('Operations'),
+                    )
+                  ], rows: []),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    scrollDirection: Axis.vertical,
+                    itemCount: value.list.length,
+                    itemBuilder: (context, index) {
+                      // column empty nai ho sakta
+                      return Expanded(
+                        child: SingleChildScrollView(
+                          child: Row(
+                            children: [
+                              DataTable(columns: const [
+                                DataColumn(label: Text("")),
+                                DataColumn(label: Text("")),
+                                DataColumn(label: Text("")),
+                                DataColumn(label: Text("")),
+                                DataColumn(label: Text("")),
+                                DataColumn(label: Text("")),
+                                // nice
+                              ], rows: [
+                                DataRow(cells: [
+                                  DataCell(
+                                    Text("${value.list[index]['title']}"),
+                                  ),
+                                  DataCell(
+                                    Text("${value.list[index]['name']}"),
+                                  ),
+                                  DataCell(
+                                    Text("${value.list[index]['pickUpLock']}"),
+                                  ),
+                                  DataCell(
+                                    Text("${value.list[index]['quantity']}"),
+                                  ),
+                                  DataCell(
+                                    Text("${value.list[index]['expDate']}"),
+                                  ),
+                                  DataCell(
+                                    Text("MeinButoon hon"),
+                                  ),
+                                ])
+                              ]),
+                            ],
+                          ),
+                        ),
+                      );
                     },
-                    child: const Text("Donate"))
-              ],
+                  ),
+                  ElevatedButton(
+                      onPressed: () async {
+                        await submit();
+                      },
+                      child: const Text("Donate")),
+                    IconButton(onPressed: (){}, icon: Icon(Icons.edit)),
+                      
+                ],
+              ),
             );
           })
         ],
