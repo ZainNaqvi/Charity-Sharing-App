@@ -1,12 +1,20 @@
+import 'dart:typed_data';
+
+// ok
+import 'package:charity/Screens/Request/add_request.dart';
+import 'package:charity/Screens/Volunteer/volunteer.dart';
 import 'package:charity/Screens/auth_screens/signin_screen.dart';
 import 'package:charity/provider/expiry_date.dart';
 import 'package:charity/services/firebase_auth/firebase_auth.dart';
 import 'package:charity/services/firebase_methods/firebase_methods.dart';
+import 'package:charity/widgets/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:get/get.dart';
+import '../../controllers/add_donation_controller.dart';
+import 'add_more_items_details.dart';
 
 class AddDonation extends StatefulWidget {
   const AddDonation({Key? key}) : super(key: key);
@@ -22,8 +30,8 @@ class _AddDonationState extends State<AddDonation> {
   final TextEditingController _quantity = TextEditingController();
   final TextEditingController _description = TextEditingController();
   final TextEditingController _pickUpLocation = TextEditingController();
-
-
+  final TextEditingController _addAttachment = TextEditingController();
+  final TextEditingController _addCategory = TextEditingController();
   TimeOfDay selectedTime = const TimeOfDay(hour: 00, minute: 00);
   String? _hour, _minute, _time;
   int count = 0;
@@ -75,8 +83,80 @@ class _AddDonationState extends State<AddDonation> {
             return "Choose PickUp Please";
           }
         }
+        return null;
       }),
     );
+  }
+
+  void chkLogOut() async {
+    Firebaseauth firebaseauth = Firebaseauth();
+    String res = await firebaseauth.signOut();
+    if (res == 'success') {
+      Get.to(const SignIn());
+    } else {
+      return;
+    }
+  }
+
+  Widget customButton(String btnName, int btnId) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+              color: Colors.orange,
+              border: Border.all(
+                color: Colors.orange,
+              ),
+              borderRadius: const BorderRadius.all(Radius.circular(20)),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.9),
+                    spreadRadius: 10,
+                    blurRadius: 12)
+              ]),
+          width: 150.w,
+          height: 50.h,
+          child: Center(
+              child: InkWell(
+            onTap: (() => {
+                  if (btnId == 1)
+                    {
+                      Get.to(const AddDonation()),
+                    }
+                  else if (btnId == 2)
+                    {
+                      Get.to(const AddRequest()),
+                    }
+                  else if (btnId == 3)
+                    {
+                      chkLogOut(),
+                    }
+                  else if (btnId == 4)
+                    {
+                      Get.to(const VolunteerMain()),
+                    }
+                }),
+            child: Text(
+              btnName,
+              style: const TextStyle(
+                  fontSize: 16,
+                  fontFamily: "Rubik Medium",
+                  color: Colors.black),
+            ),
+          )),
+        )
+      ],
+    );
+  }
+
+  Uint8List? imageUrl;
+  selectImage() async {
+    print("clicked");
+    Uint8List img = await pickImage(source: ImageSource.gallery);
+    setState(() {
+      imageUrl = img;
+    });
   }
 
   void clearText() {
@@ -85,47 +165,51 @@ class _AddDonationState extends State<AddDonation> {
     _quantity.clear();
     _description.clear();
     _pickUpLocation.clear();
+    _addCategory.clear();
+    _addAttachment.clear();
   }
 
-
   FirebsaeMethods firebsaeMethods = FirebsaeMethods();
-// submit function
 
   String pickUpDate = '';
   String pickUpTime = '';
   String expDate = '';
   bool isLoading = false;
+// submit function
   submit() async {
     setState(() {
       isLoading = true;
     });
-    String res = await firebsaeMethods.addDonation(
-        title: _titleOfDonation.text,
-        name: _nameOfItem.text,
-        quantity: _quantity.text,
-        description: _description.text,
-        pickUpLock: _pickUpLocation.text,
-        pickUpDate: pickUpDate,
-        pickUpTime: pickUpTime,
-        expDate: expDate);
-    if (res == 'success') {
-      setState(() {
-        isLoading = false;
-      });
-      Get.snackbar('Message', 'Successfully');
-    } else {
-      setState(() {
-        isLoading = false;
-      });
-      Get.snackbar('Message', 'Successfully');
+    for (var i = 0; i < Get.find<AddMoreList>().list.length; i++) {
+      String res = await firebsaeMethods.addDonation(
+        title: Get.find<AddMoreList>().list[i]['title'],
+        name: Get.find<AddMoreList>().list[i]['name'],
+        quantity: Get.find<AddMoreList>().list[i]['quantity'],
+        description: Get.find<AddMoreList>().list[i]['description'],
+        category: Get.find<AddMoreList>().list[i]['category'],
+        pickUpLock: Get.find<AddMoreList>().list[i]['pickUpLock'],
+        pickUpDate: Get.find<AddMoreList>().list[i]['pickUpDate'],
+        pickUpTime: Get.find<AddMoreList>().list[i]['pickUpTime'],
+        expDate: Get.find<AddMoreList>().list[i]['expDate'],
+      );
+      if (res == 'success') {
+        setState(() {
+          isLoading = false;
+        });
+        Get.snackbar('Message', 'Successfully');
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        Get.snackbar('Message', res.toString());
+      }
     }
   }
-  
 
   @override
   Widget build(BuildContext context) {
-
-
+    Get.put(AddMoreList());
+    // test
     expDate = Provider.of<ExpiryDate>(context).dob.text;
     pickUpDate = Provider.of<ExpiryDate>(context).pickDate.text;
     pickUpTime = Provider.of<ExpiryDate>(context).pickTime.text;
@@ -136,19 +220,65 @@ class _AddDonationState extends State<AddDonation> {
         title: const Text("Add Doantion"),
         actions: [
           ElevatedButton(
-              onPressed: () async{
+              onPressed: () async {
                 Firebaseauth firebaseauth = Firebaseauth();
-            String res = await   firebaseauth.signOut();
-            if(res=='success'){
-                Get.to(const SignIn());
-              
-            }
-            else {
-              return;
-            }
+                String res = await firebaseauth.signOut();
+                if (res == 'success') {
+                  Get.to(const SignIn());
+                } else {
+                  return;
+                }
               },
-              child: Text("log out "))
+              child: const Text("log out "))
         ],
+      ),
+      drawer: Container(
+        width: 250.w,
+        child: Drawer(
+          backgroundColor: Colors.white,
+          child: ListView(
+            //      crossAxisAlignment: CrossAxisAlignment.center,
+            padding: const EdgeInsets.all(0),
+            children: [
+              DrawerHeader(
+                decoration: const BoxDecoration(
+                  color: Colors.orange,
+                ),
+                child: Expanded(
+                  child: Row(
+                    children: const [
+                      CircleAvatar(
+                        backgroundColor: Colors.black,
+                      ),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      ListTile(
+                        title: Text("Awais"),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              customButton("Donate", 1),
+              SizedBox(
+                height: 40.h,
+              ),
+              customButton("Request", 2),
+              SizedBox(
+                height: 40.h,
+              ),
+              customButton("Volunteer", 4),
+              SizedBox(
+                height: 40.h,
+              ),
+              customButton("Log out", 3),
+            ],
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -206,7 +336,7 @@ class _AddDonationState extends State<AddDonation> {
             SizedBox(
               height: 14.h,
             ),
-            // quote text
+
             const Center(
                 child: Text(
               "Feeding someOne is the Highest \nReward You can Give to Humanity",
@@ -216,12 +346,16 @@ class _AddDonationState extends State<AddDonation> {
                   fontFamily: 'Rubik Regular',
                   color: Colors.orange),
             )),
-            if (count > 0)
-              Card(
+            GetBuilder<AddMoreList>(builder: (value) {
+              return Card(
                 elevation: 1,
                 borderOnForeground: true,
                 color: Colors.orange,
                 child: ListTile(
+                  onTap: () async {
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const AddMoreItemDetails()));
+                  },
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(40)),
                   tileColor: Colors.green,
@@ -235,7 +369,7 @@ class _AddDonationState extends State<AddDonation> {
                     ),
                   ),
                   title: Text(
-                    'Donated $count item succesfully',
+                    'Donated ${value.list.length} item succesfully',
                     style: const TextStyle(
                         fontSize: 16,
                         fontFamily: "Rubik Medium",
@@ -243,7 +377,8 @@ class _AddDonationState extends State<AddDonation> {
                   ),
                   subtitle: const Text('Tap here to check details'),
                 ),
-              ),
+              );
+            }),
             // text Fields
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 20.h, vertical: 20.h),
@@ -256,6 +391,10 @@ class _AddDonationState extends State<AddDonation> {
                     //  Enter Title field,
                     myTextField("Enter Title of Doantion",
                         const Icon(Icons.title), _titleOfDonation),
+                    SizedBox(height: 10.h),
+                    // Enter category
+                    myTextField("Add Category", const Icon(Icons.category),
+                        _addCategory),
                     SizedBox(height: 10.h),
                     // Enter name of Item
                     myTextField("Enter Name of Item",
@@ -272,11 +411,35 @@ class _AddDonationState extends State<AddDonation> {
                     // Enter pickUp location
                     myTextField("Enter PickUp location",
                         const Icon(Icons.location_on), _pickUpLocation),
+                    SizedBox(height: 10.h),
+                    GestureDetector(
+                      onTap: () async {
+                        await selectImage();
+                      },
+                      child: Container(
+                        padding: EdgeInsets.only(left: 12.w),
+                        width: double.maxFinite,
+                        height: 45.h,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20.r),
+                          border: Border.all(
+                            color: Colors.grey,
+                          ),
+                        ),
+                        child: Row(children: [
+                          const Icon(Icons.attachment_outlined),
+                          imageUrl == null
+                              ? const Text("No selected image")
+                              : Image(
+                                  image: MemoryImage(imageUrl!),
+                                ),
+                        ]),
+                      ),
+                    ),
 
                     SizedBox(height: 10.h),
 
                     // choose pick up date
-
                     Consumer<ExpiryDate>(
                       builder: (context, value, child) => TextFormField(
                         controller: value.pickDate,
@@ -329,6 +492,7 @@ class _AddDonationState extends State<AddDonation> {
                           if (value!.isEmpty) {
                             return "Enter Expiry Date First";
                           }
+                          return null;
                         },
                       ),
                     ),
@@ -387,13 +551,13 @@ class _AddDonationState extends State<AddDonation> {
                           if (value!.isEmpty) {
                             return "Enter Expiry Date First";
                           }
+                          return null;
                         },
                       ),
                     ),
                     SizedBox(height: 10.h),
-
-
                     // choose Expiry Date
+
                     Consumer<ExpiryDate>(
                       builder: (context, value, child) => TextFormField(
                         controller: value.dob,
@@ -401,7 +565,6 @@ class _AddDonationState extends State<AddDonation> {
                         decoration: InputDecoration(
                           hintText: "Enter Expiry Date ",
                           hintStyle: const TextStyle(
-                              //wait let me re test bcz it is restarted now
                               fontSize: 16,
                               fontFamily: 'Rubik Medium',
                               color: Colors.black),
@@ -421,8 +584,6 @@ class _AddDonationState extends State<AddDonation> {
                                   .then((pickedDate) {
                                 if (pickedDate != null) {
                                   value.setExpDate(pickedDate);
-                                  // setExpdate mainyu method create kia hai jisy uder value set kar raha hon look
-
                                 }
                               });
                             },
@@ -448,6 +609,7 @@ class _AddDonationState extends State<AddDonation> {
                           if (value!.isEmpty) {
                             return "Enter Expiry Date First";
                           }
+                          return null;
                         },
                       ),
                     )
@@ -464,9 +626,14 @@ class _AddDonationState extends State<AddDonation> {
                 InkWell(
                   onTap: (() {
                     if (formKey.currentState!.validate()) {
-                      setState(() {
-                        count++;
-                      });
+                      submit();
+                      //ok
+                      Get.snackbar(
+                          snackPosition: SnackPosition.BOTTOM,
+                          colorText: Colors.black,
+                          "Message",
+                          "item Donated successfully");
+                      clearText();
                     }
                   }),
                   child: Container(
@@ -483,35 +650,44 @@ class _AddDonationState extends State<AddDonation> {
                 SizedBox(
                   width: 10.w,
                 ),
-              
-
                 isLoading
-                    ? Center(
+                    ? const Center(
                         child: CircularProgressIndicator(),
                       )
-                    : InkWell(
-                        onTap: (() {
-                          if (formKey.currentState!.validate()) {
-                            submit();
-                            Get.snackbar(
-                                snackPosition: SnackPosition.BOTTOM,
-                                colorText: Colors.black,
-                                "Message",
-                                "item added successfully");
-                            clearText();
-                          }
-                        }),
-                        child: Container(
-                          height: 30.h,
-                          width: 100.w,
-                          decoration: BoxDecoration(
-                              color: Colors.orange,
-                              borderRadius: BorderRadius.circular(20)),
-                          child: const Center(
-                            child: Text("Add more item"),
+                    : GetBuilder<AddMoreList>(builder: (value) {
+                        return InkWell(
+                          onTap: (() {
+                            if (formKey.currentState!.validate()) {
+                              //
+                              value.addToList(
+                                title: _titleOfDonation.text,
+                                name: _nameOfItem.text,
+                                quantity: _quantity.text,
+                                category: _addCategory.text,
+                                description: _description.text,
+                                pickUpLocation: _pickUpLocation.text,
+                                pickUpDate: pickUpDate,
+                                pickUpTime: pickUpTime,
+                                expDate: expDate,
+                                urlOfImg: imageUrl!,
+                              );
+                              print(value.list.length);
+
+                              clearText();
+                            }
+                          }),
+                          child: Container(
+                            height: 30.h,
+                            width: 100.w,
+                            decoration: BoxDecoration(
+                                color: Colors.orange,
+                                borderRadius: BorderRadius.circular(20)),
+                            child: const Center(
+                              child: Text("Add more item"),
+                            ),
                           ),
-                        ),
-                      ),
+                        );
+                      }),
               ],
             ),
 

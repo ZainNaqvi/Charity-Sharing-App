@@ -12,7 +12,7 @@ import 'Screens/DonorScreens/add_donation.dart';
 import 'Screens/auth_screens/signup_screen.dart';
 
 void main() async{
-  WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();// only for android // do some changings for web and ios
   await Firebase.initializeApp();
   runApp(const MyApp());
 }
@@ -39,7 +39,11 @@ class MyApp extends StatelessWidget {
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          primaryColor: Colors.white,
+          backgroundColor: Colors.white,
+      
        primarySwatch: Colors.orange,
+       // see
         ),
         home:StreamBuilder(
           stream: FirebaseAuth.instance.idTokenChanges(),
@@ -49,7 +53,7 @@ class MyApp extends StatelessWidget {
               if(snapshot.connectionState==ConnectionState.active) {
                     if(snapshot.hasData) {
 
-return AddDonation() ;   }
+return const AddDonation() ;   }
 
 else if(snapshot.hasError){
   return showSnakeBar("No internet connection.", context);
@@ -57,9 +61,9 @@ else if(snapshot.hasError){
               }
 
 if(snapshot.connectionState==ConnectionState.waiting) {
-return Center(child: CircularProgressIndicator(),);
+return const Center(child: CircularProgressIndicator(),);
 }
-          return SignUp();
+          return const SignUp();
         },)
         
         
