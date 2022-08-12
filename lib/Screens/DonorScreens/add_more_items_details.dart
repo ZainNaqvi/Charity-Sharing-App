@@ -1,8 +1,11 @@
+import 'package:charity/widgets/default_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../controllers/add_donation_controller.dart';
 import '../../services/firebase_methods/firebase_methods.dart';
+import '../../widgets/app_logo_text.dart';
 
 class AddMoreItemDetails extends StatefulWidget {
   const AddMoreItemDetails({Key? key}) : super(key: key);
@@ -26,10 +29,10 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
         quantity: Get.find<AddMoreList>().list[i]['quantity'],
         description: Get.find<AddMoreList>().list[i]['description'],
         category: Get.find<AddMoreList>().list[i]['category'],
-        pickUpLock: Get.find<AddMoreList>().list[i]['pickUpLock'],
-        pickUpDate: Get.find<AddMoreList>().list[i]['pickUpDate'],
-        pickUpTime: Get.find<AddMoreList>().list[i]['pickUpTime'],
-        expDate: Get.find<AddMoreList>().list[i]['expDate'],
+        pickUpLocation: Get.find<AddMoreList>().list[i]['pickUpLocation'],
+        donationDescription: Get.find<AddMoreList>().list[i]
+            ['donationDescription'],
+        attachment: Get.find<AddMoreList>().list[i]['attachment'],
       );
       if (res == 'success') {
         setState(() {
@@ -50,6 +53,51 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(title: const Text("show details of items")),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            GetBuilder<AddMoreList>(builder: (value) {
+              return Column(
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        DataTable(columns: [
+                          DataColumn(
+                            label: Text('Title'),
+                          ),
+                          DataColumn(
+                            label: Text('Item Name'),
+                          ),
+                          DataColumn(
+                            label: Text('Quantity'),
+                          ),
+                          DataColumn(
+                            label: Text('Donation Desc'),
+                          ),
+                          DataColumn(
+                            label: Text('Location'),
+                          ),
+                          DataColumn(
+                            label: Text('Description'),
+                          ),
+                          DataColumn(
+                            label: Text('Attachment'),
+                          ),
+                          DataColumn(
+                            label: Text('Category'),
+                          ),
+                          DataColumn(
+                            label: Text('Edit'),
+                          ),
+                          DataColumn(
+                            label: Text('Delete'),
+                          )
+                        ], rows: []),
+                      ],
+                    ),
+                  ),
       body: Column(
         children: [
           GetBuilder<AddMoreList>(builder: (value) {
@@ -76,6 +124,7 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
                       label: Text('Operations'),
                     )
                   ], rows: []),
+
                   ListView.builder(
                     shrinkWrap: true,
                     scrollDirection: Axis.vertical,
@@ -84,6 +133,9 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
                       // column empty nai ho sakta
                       return Expanded(
                         child: SingleChildScrollView(
+
+                          scrollDirection: Axis.horizontal,
+
                           child: Row(
                             children: [
                               DataTable(columns: const [
@@ -93,6 +145,12 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
                                 DataColumn(label: Text("")),
                                 DataColumn(label: Text("")),
                                 DataColumn(label: Text("")),
+
+                                DataColumn(label: Text("")),
+                                DataColumn(label: Text("")),
+                                DataColumn(label: Text("")),
+                                DataColumn(label: Text("")),
+
                                 // nice
                               ], rows: [
                                 DataRow(cells: [
@@ -100,6 +158,75 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
                                     Text("${value.list[index]['title']}"),
                                   ),
                                   DataCell(
+
+                                    Text("${value.list[index]['itemName']}"),
+                                  ),
+                                  DataCell(
+                                    Text("${value.list[index]['quantity']}"),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                        "${value.list[index]['donationDescription']}"),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                        "${value.list[index]['pickUpLocation']}"),
+                                  ),
+                                  DataCell(
+                                    Text("${value.list[index]['description']}"),
+                                  ),
+                                  DataCell(
+                                    Text("${value.list[index]['attachment']}"),
+                                  ),
+                                  DataCell(
+                                    Text("${value.list[index]['category']}"),
+                                  ),
+                                  DataCell(
+                                    IconButton(
+                                        onPressed: () {
+                                          Get.defaultDialog(
+                                            title: '',
+                                            content: Expanded(
+                                              child: SingleChildScrollView(
+                                                child: SizedBox(
+                                                  width: MediaQuery.of(context)
+                                                      .size
+                                                      .width,
+                                                  child: Column(
+                                                    children: [
+                                                      AppLogoText(),
+                                                      SizedBox(
+                                                        height: 30.0.h,
+                                                      ),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceAround,
+                                                        children: [
+                                                          DefaultButton(
+                                                              text: "Update"),
+                                                          DefaultButton(
+                                                              text: "Cancel"),
+                                                        ],
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        icon: Icon(Icons.edit)),
+                                  ),
+                                  DataCell(
+                                    IconButton(
+                                        onPressed: () {
+                                          setState(() {});
+                                          value.list.removeAt(index);
+                                          Get.snackbar("Message", "Deleted.");
+                                        },
+                                        icon: Icon(Icons.delete)),
+
                                     Text("${value.list[index]['name']}"),
                                   ),
                                   DataCell(
@@ -113,6 +240,7 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
                                   ),
                                   DataCell(
                                     Text("MeinButoon hon"),
+
                                   ),
                                 ])
                               ]),
@@ -122,6 +250,18 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
                       );
                     },
                   ),
+
+                  DefaultButton(
+                      text: "Donate",
+                      onPressed: () async {
+                        await submit();
+                      })
+                ],
+              );
+            })
+          ],
+        ),
+
                   ElevatedButton(
                       onPressed: () async {
                         await submit();

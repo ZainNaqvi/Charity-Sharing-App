@@ -1,18 +1,19 @@
+
+import 'package:charity/Screens/DonorScreens/add_more_items_details.dart';
+
 import 'dart:typed_data';
 import 'package:charity/Screens/Request/add_request.dart';
 import 'package:charity/Screens/Volunteer/volunteer.dart';
 import 'package:charity/Screens/auth_screens/signin_screen.dart';
-import 'package:charity/provider/expiry_date.dart';
+import 'package:charity/controllers/add_donation_controller.dart';
 import 'package:charity/services/firebase_auth/firebase_auth.dart';
-import 'package:charity/services/firebase_methods/firebase_methods.dart';
-import 'package:charity/widgets/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 import 'package:get/get.dart';
-import '../../controllers/add_donation_controller.dart';
-import 'add_more_items_details.dart';
+import '../../widgets/app_logo_text.dart';
+import '../../widgets/custom_drawer.dart';
+import '../../widgets/custom_text_field.dart';
+import '../../widgets/default_button.dart';
 
 class AddDonation extends StatefulWidget {
   const AddDonation({Key? key}) : super(key: key);
@@ -22,196 +23,24 @@ class AddDonation extends StatefulWidget {
 } // wo khaan hai detail screen
 
 class _AddDonationState extends State<AddDonation> {
-  final formKey = GlobalKey<FormState>();
-  final TextEditingController _titleOfDonation = TextEditingController();
-  final TextEditingController _nameOfItem = TextEditingController();
-  final TextEditingController _quantity = TextEditingController();
-  final TextEditingController _description = TextEditingController();
-  final TextEditingController _pickUpLocation = TextEditingController();
-  final TextEditingController _addAttachment = TextEditingController();
-  final TextEditingController _addCategory = TextEditingController();
-  TimeOfDay selectedTime = const TimeOfDay(hour: 00, minute: 00);
-  String? _hour, _minute, _time;
-  int count = 0;
-
-  Widget myTextField(
-      String hintText, Icon preIcon, TextEditingController mycontroller) {
-    return TextFormField(
-      controller: mycontroller,
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: const TextStyle(
-            fontSize: 16, fontFamily: "Rubik Medium", color: Colors.black),
-        fillColor: Colors.orange,
-        prefixIcon: preIcon,
-        focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(
-            color: Colors.orange,
-          ),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(35),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(
-            color: Colors.orange,
-          ),
-          borderRadius: BorderRadius.circular(20),
-        ),
-      ),
-      validator: ((value) {
-        if (value!.isEmpty) {
-          if (hintText == "Enter Title of Doantion") {
-            return "Enter Title Please";
-          }
-          if (hintText == "Enter Name of Item") {
-            return "Enter Name Please";
-          }
-          if (hintText == "Enter Quantity") {
-            return "Enter Quantity Please";
-          }
-          if (hintText == "Enter Description") {
-            return "Enter Description Please";
-          }
-          if (hintText == "Enter PickUp location") {
-            return "Choose PickUp Please";
-          }
-          if (hintText == "Enter destination location") {
-            return "Choose PickUp Please";
-          }
-        }
-        return null;
-      }),
-    );
-  }
-
-  void chkLogOut() async {
-    Firebaseauth firebaseauth = Firebaseauth();
-    String res = await firebaseauth.signOut();
-    if (res == 'success') {
-      Get.to(const SignIn());
-    } else {
-      return;
-    }
-  }
-
-  Widget customButton(String btnName, int btnId) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-              color: Colors.orange,
-              border: Border.all(
-                color: Colors.orange,
-              ),
-              borderRadius: const BorderRadius.all(Radius.circular(20)),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black.withOpacity(0.9),
-                    spreadRadius: 10,
-                    blurRadius: 12)
-              ]),
-          width: 150.w,
-          height: 50.h,
-          child: Center(
-              child: InkWell(
-            onTap: (() => {
-                  if (btnId == 1)
-                    {
-                      Get.to(const AddDonation()),
-                    }
-                  else if (btnId == 2)
-                    {
-                      Get.to(const AddRequest()),
-                    }
-                  else if (btnId == 3)
-                    {
-                      chkLogOut(),
-                    }
-                  else if (btnId == 4)
-                    {
-                      Get.to(const VolunteerMain()),
-                    }
-                }),
-            child: Text(
-              btnName,
-              style: const TextStyle(
-                  fontSize: 16,
-                  fontFamily: "Rubik Medium",
-                  color: Colors.black),
-            ),
-          )),
-        )
-      ],
-    );
-  }
-
-  Uint8List? imageUrl;
-  selectImage() async {
-    print("clicked");
-    Uint8List img = await pickImage(source: ImageSource.gallery);
-    setState(() {
-      imageUrl = img;
-    });
-  }
-
-  void clearText() {
-    _titleOfDonation.clear();
-    _nameOfItem.clear();
-    _quantity.clear();
-    _description.clear();
-    _pickUpLocation.clear();
-    _addCategory.clear();
-    _addAttachment.clear();
-  }
-
-  FirebsaeMethods firebsaeMethods = FirebsaeMethods();
-
-  String pickUpDate = '';
-  String pickUpTime = '';
-  String expDate = '';
-  bool isLoading = false;
-// submit function
-  submit() async {
-    setState(() {
-      isLoading = true;
-    });
-    for (var i = 0; i < Get.find<AddMoreList>().list.length; i++) {
-      String res = await firebsaeMethods.addDonation(
-        title: Get.find<AddMoreList>().list[i]['title'],
-        name: Get.find<AddMoreList>().list[i]['name'],
-        quantity: Get.find<AddMoreList>().list[i]['quantity'],
-        description: Get.find<AddMoreList>().list[i]['description'],
-        category: Get.find<AddMoreList>().list[i]['category'],
-        pickUpLock: Get.find<AddMoreList>().list[i]['pickUpLock'],
-        pickUpDate: Get.find<AddMoreList>().list[i]['pickUpDate'],
-        pickUpTime: Get.find<AddMoreList>().list[i]['pickUpTime'],
-        expDate: Get.find<AddMoreList>().list[i]['expDate'],
-      );
-      if (res == 'success') {
-        setState(() {
-          isLoading = false;
-        });
-        Get.snackbar('Message', 'Successfully');
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-        Get.snackbar('Message', res.toString());
-      }
-    }
-  }
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _userTitleController = TextEditingController();
+  final TextEditingController _userDonationDescriptionController =
+      TextEditingController();
+  final TextEditingController _itemDescriptionController =
+      TextEditingController();
+  final TextEditingController _userAddressController = TextEditingController();
+  final TextEditingController _itemNameController = TextEditingController();
+  final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _attachmentController = TextEditingController();
+  final TextEditingController _addItemDescriptionController =
+      TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     Get.put(AddMoreList());
-    // test
-    expDate = Provider.of<ExpiryDate>(context).dob.text;
-    pickUpDate = Provider.of<ExpiryDate>(context).pickDate.text;
-    pickUpTime = Provider.of<ExpiryDate>(context).pickTime.text;
-
+    // MY-LIST
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
@@ -230,6 +59,7 @@ class _AddDonationState extends State<AddDonation> {
               child: const Text("log out "))
         ],
       ),
+      drawer: MyDrawer(),
       drawer: Container(
         width: 250.h,
         child: Drawer(
@@ -273,210 +103,33 @@ class _AddDonationState extends State<AddDonation> {
         )),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 30.h,
-            ),
-            // logo + app name
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Image(
-                  height: 50.h,
-                  image: const AssetImage("assets/logo/donateLogo.jpg"),
-                ),
-                SizedBox(
-                  width: 10.h,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      "Charity Sharing",
-                      style: TextStyle(
-                          fontSize: 24,
-                          fontFamily: 'Rubik Medium',
-                          color: Colors.black),
-                    ),
-                    Text(
-                      "App",
-                      style: TextStyle(
-                          fontSize: 24,
-                          fontFamily: 'Rubik Medium',
-                          color: Colors.orange),
-                    ),
-                  ],
-                )
-              ],
-            ),
+        physics: BouncingScrollPhysics(),
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 24.w),
+          child: Column(
+            children: [
+              // APP-LOGO APP-TITLE-TEXT
+              AppLogoText(),
+              MyForm(),
+              SizedBox(height: 12.h),
 
-            SizedBox(
-              height: 20.h,
-            ),
-            // Add Donation Text
-            const Center(
-                child: Text(
-              "Add Your Donation ",
-              style: TextStyle(
-                  fontSize: 24,
-                  fontFamily: 'Rubik Medium',
-                  color: Colors.black),
-            )),
-
-            SizedBox(
-              height: 14.h,
-            ),
-
-            const Center(
-                child: Text(
-              "Feeding someOne is the Highest \nReward You can Give to Humanity",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontSize: 16,
-                  fontFamily: 'Rubik Regular',
-                  color: Colors.orange),
-            )),
-            GetBuilder<AddMoreList>(builder: (value) {
-              return Card(
-                elevation: 1,
-                borderOnForeground: true,
-                color: Colors.orange,
-                child: ListTile(
-                  onTap: () async {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const AddMoreItemDetails()));
-                  },
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(40)),
-                  tileColor: Colors.green,
-                  textColor: Colors.white,
-                  iconColor: Colors.white,
-                  leading: const CircleAvatar(
-                    backgroundColor: Colors.orange,
-                    child: Icon(
-                      Icons.light,
-                      color: Colors.black,
-                    ),
-                  ),
-                  title: Text(
-                    'Donated ${value.list.length} item succesfully',
-                    style: const TextStyle(
-                        fontSize: 16,
-                        fontFamily: "Rubik Medium",
-                        color: Colors.black),
-                  ),
-                  subtitle: const Text('Tap here to check details'),
-                ),
-              );
-            }),
-            // text Fields
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.h, vertical: 20.h),
-              child: Form(
-                key: formKey,
-                child: Column(
+              GetBuilder<AddMoreList>(builder: (value) {
+                return Column(
                   children: [
-                    SizedBox(height: 20.h),
-
-                    //  Enter Title field,
-                    myTextField("Enter Title of Doantion",
-                        const Icon(Icons.title), _titleOfDonation),
-                    SizedBox(height: 10.h),
-                    // Enter category
-                    myTextField("Add Category", const Icon(Icons.category),
-                        _addCategory),
-                    SizedBox(height: 10.h),
-                    // Enter name of Item
-                    myTextField("Enter Name of Item",
-                        const Icon(Icons.description_sharp), _nameOfItem),
-                    SizedBox(height: 10.h),
-                    // Enter Quantity
-                    myTextField(
-                        "Enter Quantity", const Icon(Icons.numbers), _quantity),
-                    SizedBox(height: 10.h),
-                    // Enter Description
-                    myTextField("Enter Description",
-                        const Icon(Icons.description_sharp), _description),
-                    SizedBox(height: 10.h),
-                    // Enter pickUp location
-                    myTextField("Enter PickUp location",
-                        const Icon(Icons.location_on), _pickUpLocation),
-                    SizedBox(height: 10.h),
-                    GestureDetector(
-                      onTap: () async {
-                        await selectImage();
-                      },
-                      child: Container(
-                        padding: EdgeInsets.only(left: 12.w),
-                        width: double.maxFinite,
-                        height: 45.h,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20.r),
-                          border: Border.all(
-                            color: Colors.grey,
-                          ),
-                        ),
-                        child: Row(children: [
-                          const Icon(Icons.attachment_outlined),
-                          imageUrl == null
-                              ? const Text("No selected image")
-                              : Image(
-                                  image: MemoryImage(imageUrl!),
-                                ),
-                        ]),
-                      ),
-                    ),
-
-                    SizedBox(height: 10.h),
-
-                    // choose pick up date
-                    Consumer<ExpiryDate>(
-                      builder: (context, value, child) => TextFormField(
-                        controller: value.pickDate,
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          hintText: "Enter PickUp Date ",
-                          hintStyle: const TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Rubik Medium',
-                              color: Colors.black),
-                          fillColor: Colors.orange,
-                          prefixIcon: const Icon(
-                            Icons.calendar_month_sharp,
-                            color: Colors.orange,
-                          ),
-                          suffixIcon: IconButton(
-                            onPressed: () async {
-                              await showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime.now()
-                                          .subtract(const Duration(days: 1500)),
-                                      lastDate: DateTime.now()
-                                          .add(const Duration(days: 1500)))
-                                  .then((pickedDate) {
-                                if (pickedDate != null) {
-                                  value.setPickUpDate(pickedDate);
-                                }
-                              });
-                            },
-                            icon: const Icon(Icons.calendar_month),
-                          ),
-                          focusedBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.orange,
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          DataTable(columns: [
+                            DataColumn(
+                              label: Text('Title'),
                             ),
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(35),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.orange,
+                            DataColumn(
+                              label: Text('Item Name'),
                             ),
+                            DataColumn(
+                              label: Text('Quantity'),
+
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),
@@ -524,169 +177,389 @@ class _AddDonationState extends State<AddDonation> {
                           focusedBorder: const OutlineInputBorder(
                             borderSide: BorderSide(
                               color: Colors.orange,
+
                             ),
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(35),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.orange,
+                            DataColumn(
+                              label: Text('Donation Desc'),
                             ),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return "Enter Expiry Date First";
-                          }
-                          return null;
-                        },
+                            DataColumn(
+                              label: Text('Location'),
+                            ),
+                            DataColumn(
+                              label: Text('Description'),
+                            ),
+                            DataColumn(
+                              label: Text('Attachment'),
+                            ),
+                            DataColumn(
+                              label: Text('Category'),
+                            ),
+                            DataColumn(
+                              label: Text('Edit'),
+                            ),
+                            DataColumn(
+                              label: Text('Delete'),
+                            )
+                          ], rows: []),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 10.h),
-                    // choose Expiry Date
-
-                    Consumer<ExpiryDate>(
-                      builder: (context, value, child) => TextFormField(
-                        controller: value.dob,
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          hintText: "Enter Expiry Date ",
-                          hintStyle: const TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Rubik Medium',
-                              color: Colors.black),
-                          fillColor: Colors.orange,
-                          prefixIcon: const Icon(
-                            Icons.calendar_month_sharp,
-                            color: Colors.orange,
-                          ),
-                          suffixIcon: IconButton(
-                            onPressed: () async {
-                              await showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime.now(),
-                                      lastDate: DateTime.now()
-                                          .add(const Duration(days: 1500)))
-                                  .then((pickedDate) {
-                                if (pickedDate != null) {
-                                  value.setExpDate(pickedDate);
-                                }
-                              });
-                            },
-                            icon: const Icon(Icons.calendar_month),
-                          ),
-                          focusedBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.orange,
-                            ),
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(35),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Colors.orange,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return "Enter Expiry Date First";
-                          }
-                          return null;
-                        },
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            ),
-
-            SizedBox(height: 20.h),
-            //Donate button
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                InkWell(
-                  onTap: (() {
-                    if (formKey.currentState!.validate()) {
-                      submit();
-                      //ok
-                      Get.snackbar(
-                          snackPosition: SnackPosition.BOTTOM,
-                          colorText: Colors.black,
-                          "Message",
-                          "item Donated successfully");
-                      clearText();
-                    }
-                  }),
-                  child: Container(
-                    height: 30.h,
-                    width: 100.w,
-                    decoration: BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.circular(20)),
-                    child: const Center(
-                      child: Text("Donate"),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 10.w,
-                ),
-                isLoading
-                    ? const Center(
-                        child: CircularProgressIndicator(),
-                      )
-                    : GetBuilder<AddMoreList>(builder: (value) {
-                        return InkWell(
-                          onTap: (() {
-                            if (formKey.currentState!.validate()) {
-                              //
-                              value.addToList(
-                                title: _titleOfDonation.text,
-                                name: _nameOfItem.text,
-                                quantity: _quantity.text,
-                                category: _addCategory.text,
-                                description: _description.text,
-                                pickUpLocation: _pickUpLocation.text,
-                                pickUpDate: pickUpDate,
-                                pickUpTime: pickUpTime,
-                                expDate: expDate,
-                                urlOfImg: imageUrl!,
-                              );
-                              print(value.list.length);
-
-                              clearText();
-                            }
-                          }),
-                          child: Container(
-                            height: 30.h,
-                            width: 100.w,
-                            decoration: BoxDecoration(
-                                color: Colors.orange,
-                                borderRadius: BorderRadius.circular(20)),
-                            child: const Center(
-                              child: Text("Add more item"),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.vertical,
+                      itemCount: value.list.length,
+                      itemBuilder: (context, index) {
+                        // column empty nai ho sakta
+                        return Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                DataTable(columns: const [
+                                  DataColumn(label: Text("")),
+                                  DataColumn(label: Text("")),
+                                  DataColumn(label: Text("")),
+                                  DataColumn(label: Text("")),
+                                  DataColumn(label: Text("")),
+                                  DataColumn(label: Text("")),
+                                  DataColumn(label: Text("")),
+                                  DataColumn(label: Text("")),
+                                  DataColumn(label: Text("")),
+                                  DataColumn(label: Text("")),
+                                  // nice
+                                ], rows: [
+                                  DataRow(cells: [
+                                    DataCell(
+                                      Text("${value.list[index]['title']}"),
+                                    ),
+                                    DataCell(
+                                      Text("${value.list[index]['itemName']}"),
+                                    ),
+                                    DataCell(
+                                      Text("${value.list[index]['quantity']}"),
+                                    ),
+                                    DataCell(
+                                      Text(
+                                          "${value.list[index]['donationDescription']}"),
+                                    ),
+                                    DataCell(
+                                      Text(
+                                          "${value.list[index]['pickUpLocation']}"),
+                                    ),
+                                    DataCell(
+                                      Text(
+                                          "${value.list[index]['description']}"),
+                                    ),
+                                    DataCell(
+                                      Text(
+                                          "${value.list[index]['attachment']}"),
+                                    ),
+                                    DataCell(
+                                      Text("${value.list[index]['category']}"),
+                                    ),
+                                    DataCell(
+                                      IconButton(
+                                          onPressed: () {
+                                            final TextEditingController
+                                                _updateitemNameController =
+                                                TextEditingController(
+                                                    text: value.list[index]
+                                                        ['itemName']);
+                                            final TextEditingController
+                                                _updatecategoryController =
+                                                TextEditingController(
+                                                    text: value.list[index]
+                                                        ['category']);
+                                            final TextEditingController
+                                                _updatequantityController =
+                                                TextEditingController(
+                                                    text: value.list[index]
+                                                        ['quantity']);
+                                            final TextEditingController
+                                                _updateattachmentController =
+                                                TextEditingController(
+                                                    text: value.list[index]
+                                                        ['attachment']);
+                                            final TextEditingController
+                                                _updateaddItemDescriptionController =
+                                                TextEditingController(
+                                                    text: value.list[index]
+                                                        ['description']);
+                                            Get.defaultDialog(
+                                              title: '',
+                                              content: Expanded(
+                                                child: SingleChildScrollView(
+                                                  child: SizedBox(
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                            .size
+                                                            .width,
+                                                    child: Column(
+                                                      children: [
+                                                        AppLogoText(),
+                                                        SizedBox(
+                                                          height: 30.0.h,
+                                                        ),
+                                                        myTextField(
+                                                            "",
+                                                            Icon(Icons.person),
+                                                            _updateitemNameController),
+                                                        myTextField(
+                                                            "",
+                                                            Icon(Icons.person),
+                                                            _updatecategoryController),
+                                                        myTextField(
+                                                            "",
+                                                            Icon(Icons.person),
+                                                            _updatequantityController),
+                                                        myTextField(
+                                                            "",
+                                                            Icon(Icons.person),
+                                                            _updateattachmentController),
+                                                        myTextField(
+                                                            "",
+                                                            Icon(Icons.person),
+                                                            _updateaddItemDescriptionController),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceAround,
+                                                          children: [
+                                                            DefaultButton(
+                                                                text: "Update",
+                                                                onPressed: () {
+                                                                  value.list[index]
+                                                                          [
+                                                                          'itemName'] =
+                                                                      _updateitemNameController
+                                                                          .text;
+                                                                  value.list[index]
+                                                                          [
+                                                                          'category'] =
+                                                                      _updatecategoryController
+                                                                          .text;
+                                                                  value.list[index]
+                                                                          [
+                                                                          'quantity'] =
+                                                                      _updatequantityController
+                                                                          .text;
+                                                                  value.list[index]
+                                                                          [
+                                                                          'quantity'] =
+                                                                      _updatequantityController
+                                                                          .text;
+                                                                  value.list[index]
+                                                                          [
+                                                                          'attachment'] =
+                                                                      _updateattachmentController
+                                                                          .text;
+                                                                  value.list[index]
+                                                                          [
+                                                                          'description'] =
+                                                                      _updateaddItemDescriptionController
+                                                                          .text;
+                                                                }),
+                                                            DefaultButton(
+                                                                text: "Cancel"),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          icon: Icon(Icons.edit)),
+                                    ),
+                                    DataCell(
+                                      IconButton(
+                                          onPressed: () {
+                                            setState(() {});
+                                            value.list.removeAt(index);
+                                            Get.snackbar("Message", "Deleted.");
+                                          },
+                                          icon: Icon(Icons.delete)),
+                                    ),
+                                  ])
+                                ]),
+                              ],
                             ),
                           ),
                         );
-                      }),
-              ],
-            ),
-
-            SizedBox(
-              height: 10.h,
-            ),
-          ],
+                      },
+                    ),
+                  ],
+                );
+              })
+            ],
+          ),
         ),
       ),
     ));
+  }
+
+// TEXT-FORM-FIELDS
+  Widget MyForm() {
+    return GetBuilder<AddMoreList>(builder: (value) {
+      return Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            myTextField(
+                "Enter title", Icon(Icons.person), _userTitleController),
+            myTextField("Enter Description", Icon(Icons.person),
+                _userDonationDescriptionController),
+            myTextField(
+                "Enter Address", Icon(Icons.person), _userAddressController),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                DefaultButton(
+                  text: "Add More Item",
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      Get.defaultDialog(
+                          title: '',
+                          content: Expanded(
+                            flex: 4,
+                            child: SingleChildScrollView(
+                              child: SizedBox(
+                                width: MediaQuery.of(context).size.width,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.max,
+                                  children: [
+                                    AppLogoText(),
+                                    SizedBox(
+                                      height: 30.0.h,
+                                    ),
+                                    myTextField("Item Name", Icon(Icons.add),
+                                        _itemNameController),
+                                    myTextField(
+                                        "Category",
+                                        Icon(Icons.category),
+                                        _categoryController),
+                                    myTextField("Quantity", Icon(Icons.numbers),
+                                        _quantityController),
+                                    myTextField(
+                                        "Attachment",
+                                        Icon(Icons.attachment),
+                                        _attachmentController),
+                                    myTextField(
+                                        "Description",
+                                        Icon(Icons.details),
+                                        _itemDescriptionController),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        GetBuilder<AddMoreList>(
+                                          builder: (addList) {
+                                            return DefaultButton(
+                                              text: 'Save',
+                                              onPressed: () {
+                                                addList.addToList(
+                                                  donationDescription:
+                                                      _userDonationDescriptionController
+                                                          .text,
+                                                  title:
+                                                      _userTitleController.text,
+                                                  itemName:
+                                                      _itemNameController.text,
+                                                  quantity:
+                                                      _quantityController.text,
+                                                  description:
+                                                      _itemDescriptionController
+                                                          .text,
+                                                  pickUpLocation:
+                                                      _userAddressController
+                                                          .text,
+                                                  attachment:
+                                                      _attachmentController
+                                                          .text,
+                                                  category:
+                                                      _categoryController.text,
+                                                );
+                                                // NAVIGATING-TO-DETAIL-PAGE
+
+                                                Get.to(AddDonation());
+                                              },
+                                            );
+                                          },
+                                        ),
+                                        DefaultButton(
+                                            text: 'Cancel', onPressed: () {}),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          radius: 10.0);
+                    } else {
+                      Get.snackbar("Message", "All Field required.");
+                    }
+                  },
+                ),
+                value.list.isEmpty
+                    ? DefaultButton(
+                        text: "Donate",
+                        onPressed: null,
+                      )
+                    : DefaultButton(
+                        text: "Donate",
+                        onPressed: () async {
+                          await submit();
+                        },
+                      ),
+                value.list.isEmpty
+                    ? DefaultButton(
+                        text: "Cancel",
+                        onPressed: null,
+                      )
+                    : DefaultButton(
+                        text: "Cancel",
+                        onPressed: () async {
+                          Get.to(AddDonation());
+                        },
+                      ),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  // SUBMITING-TO-DATABASE
+  submit() async {
+    setState(() {
+      isLoading = true;
+    });
+    for (var i = 0; i < Get.find<AddMoreList>().list.length; i++) {
+      String res = await firebsaeMethods.addDonation(
+        title: Get.find<AddMoreList>().list[i]['title'],
+        name: Get.find<AddMoreList>().list[i]['name'],
+        quantity: Get.find<AddMoreList>().list[i]['quantity'],
+        description: Get.find<AddMoreList>().list[i]['description'],
+        category: Get.find<AddMoreList>().list[i]['category'],
+        pickUpLocation: Get.find<AddMoreList>().list[i]['pickUpLocation'],
+        donationDescription: Get.find<AddMoreList>().list[i]
+            ['donationDescription'],
+        attachment: Get.find<AddMoreList>().list[i]['attachment'],
+      );
+      if (res == 'success') {
+        setState(() {
+          isLoading = false;
+        });
+        Get.snackbar('Message', 'Successfully');
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        Get.snackbar('Message', res.toString());
+      }
+    }
   }
 }
