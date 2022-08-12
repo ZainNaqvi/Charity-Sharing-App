@@ -98,6 +98,33 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
                       ],
                     ),
                   ),
+      body: Column(
+        children: [
+          GetBuilder<AddMoreList>(builder: (value) {
+            return Expanded(
+              child: Column(
+                children: [
+                  DataTable(columns: [
+                    DataColumn(
+                      label: Text('Title'),
+                    ),
+                    DataColumn(
+                      label: Text('Name'),
+                    ),
+                    DataColumn(
+                      label: Text('pickUp'),
+                    ),
+                    DataColumn(
+                      label: Text('Quantity'),
+                    ),
+                    DataColumn(
+                      label: Text('Exp date'),
+                    ),
+                    DataColumn(
+                      label: Text('Operations'),
+                    )
+                  ], rows: []),
+
                   ListView.builder(
                     shrinkWrap: true,
                     scrollDirection: Axis.vertical,
@@ -106,7 +133,9 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
                       // column empty nai ho sakta
                       return Expanded(
                         child: SingleChildScrollView(
+
                           scrollDirection: Axis.horizontal,
+
                           child: Row(
                             children: [
                               DataTable(columns: const [
@@ -116,10 +145,12 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
                                 DataColumn(label: Text("")),
                                 DataColumn(label: Text("")),
                                 DataColumn(label: Text("")),
+
                                 DataColumn(label: Text("")),
                                 DataColumn(label: Text("")),
                                 DataColumn(label: Text("")),
                                 DataColumn(label: Text("")),
+
                                 // nice
                               ], rows: [
                                 DataRow(cells: [
@@ -127,6 +158,7 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
                                     Text("${value.list[index]['title']}"),
                                   ),
                                   DataCell(
+
                                     Text("${value.list[index]['itemName']}"),
                                   ),
                                   DataCell(
@@ -194,6 +226,21 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
                                           Get.snackbar("Message", "Deleted.");
                                         },
                                         icon: Icon(Icons.delete)),
+
+                                    Text("${value.list[index]['name']}"),
+                                  ),
+                                  DataCell(
+                                    Text("${value.list[index]['pickUpLock']}"),
+                                  ),
+                                  DataCell(
+                                    Text("${value.list[index]['quantity']}"),
+                                  ),
+                                  DataCell(
+                                    Text("${value.list[index]['expDate']}"),
+                                  ),
+                                  DataCell(
+                                    Text("MeinButoon hon"),
+
                                   ),
                                 ])
                               ]),
@@ -203,6 +250,7 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
                       );
                     },
                   ),
+
                   DefaultButton(
                       text: "Donate",
                       onPressed: () async {
@@ -213,6 +261,19 @@ class _AddMoreItemDetailsState extends State<AddMoreItemDetails> {
             })
           ],
         ),
+
+                  ElevatedButton(
+                      onPressed: () async {
+                        await submit();
+                      },
+                      child: const Text("Donate")),
+                    IconButton(onPressed: (){}, icon: Icon(Icons.edit)),
+                      
+                ],
+              ),
+            );
+          })
+        ],
       ),
     );
   }
