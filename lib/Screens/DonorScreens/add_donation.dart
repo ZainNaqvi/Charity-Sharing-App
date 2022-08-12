@@ -1,9 +1,4 @@
-
 import 'package:charity/Screens/DonorScreens/add_more_items_details.dart';
-
-import 'dart:typed_data';
-import 'package:charity/Screens/Request/add_request.dart';
-import 'package:charity/Screens/Volunteer/volunteer.dart';
 import 'package:charity/Screens/auth_screens/signin_screen.dart';
 import 'package:charity/controllers/add_donation_controller.dart';
 import 'package:charity/services/firebase_auth/firebase_auth.dart';
@@ -20,7 +15,7 @@ class AddDonation extends StatefulWidget {
 
   @override
   State<AddDonation> createState() => _AddDonationState();
-} // wo khaan hai detail screen
+}
 
 class _AddDonationState extends State<AddDonation> {
   final _formKey = GlobalKey<FormState>();
@@ -60,48 +55,6 @@ class _AddDonationState extends State<AddDonation> {
         ],
       ),
       drawer: MyDrawer(),
-      drawer: Container(
-        width: 250.h,
-        child: Drawer(
-            child: ListView(
-          // Important: Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            const UserAccountsDrawerHeader(
-              accountName: const Text("Maab"),
-              accountEmail: Text("maab977@gmail.com"),
-              currentAccountPicture: CircleAvatar(
-                backgroundColor: Colors.orange,
-                child: const Text(
-                  "A",
-                  style: const TextStyle(fontSize: 40.0),
-                ),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text("Home"),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text("Settings"),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.contacts),
-              title: const Text("Contact Us"),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-          ],
-        )),
-      ),
       body: SingleChildScrollView(
         physics: BouncingScrollPhysics(),
         child: Container(
@@ -129,55 +82,6 @@ class _AddDonationState extends State<AddDonation> {
                             ),
                             DataColumn(
                               label: Text('Quantity'),
-
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return "Enter Expiry Date First";
-                          }
-                          return null;
-                        },
-                      ),
-                    ),
-                    SizedBox(height: 10.h),
-
-                    Consumer<ExpiryDate>(
-                      builder: (context, value, child) => TextFormField(
-                        controller: value.pickTime,
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          hintText: "Enter PickUp Time ",
-                          hintStyle: const TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Rubik Medium',
-                              color: Colors.black),
-                          fillColor: Colors.orange,
-                          prefixIcon: const Icon(
-                            Icons.timelapse_sharp,
-                            color: Colors.orange,
-                          ),
-                          suffixIcon: IconButton(
-                            onPressed: () async {
-                              await showTimePicker(
-                                context: context,
-                                initialTime: selectedTime,
-                              ).then((pickedTime) {
-                                if (pickedTime != null) {
-                                  _hour = pickedTime.hour.toString();
-                                  _minute = pickedTime.minute.toString();
-                                  _time = "$_hour : $_minute";
-                                  value.setPickUpTime(_time);
-                                }
-                              });
-                            },
-                            icon: const Icon(Icons.punch_clock),
-                          ),
-                          focusedBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.orange,
-
                             ),
                             DataColumn(
                               label: Text('Donation Desc'),
