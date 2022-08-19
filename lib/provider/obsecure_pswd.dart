@@ -1,14 +1,12 @@
 import 'package:flutter/cupertino.dart';
 
-class ObsecurePassword  extends ChangeNotifier{
+class ObsecurePassword extends ChangeNotifier {
+  bool isObsecure = true;
 
-bool isObsecure= true;
+  bool get obsecure => isObsecure;
 
-bool get obsecure => isObsecure;
-
-void checkMyObsecure ()
-{
-  isObsecure=!isObsecure;
-  notifyListeners();
-}
+  void checkMyObsecure() {
+    isObsecure = !isObsecure;
+    notifyListeners();
+  }
 }

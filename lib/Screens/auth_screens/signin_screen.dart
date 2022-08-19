@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import '../../provider/obsecure_pswd.dart';
 
-
 class SignIn extends StatefulWidget {
   const SignIn({Key? key}) : super(key: key);
 
@@ -17,12 +16,13 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-   String result=" my result";
+  String result = " my result";
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _paswordControler = TextEditingController();
 
   final Firebaseauth _auth = Firebaseauth();
-    bool isLoading = false;
+  String errorlabel = "";
+  bool isLoading = false;
   signInUser() async {
     setState(() {
       isLoading = true;
@@ -42,56 +42,54 @@ class _SignInState extends State<SignIn> {
     } else {
       setState(() {
         isLoading = false;
-           result=res;
+        errorlabel = res.split("]")[1];
+        result = res;
       });
-   
+
       Get.snackbar("Message", res.trimLeft());
     }
   }
-   Widget myTextField(
-        String hintText, Icon preIcon, TextEditingController mycontroller) {
-         
-      return TextFormField(
-        controller: mycontroller,
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: const TextStyle(
-              fontSize: 16, fontFamily: "Rubik Medium", color: Colors.black),
-          fillColor: Colors.orange,
-          prefixIcon: preIcon,
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(
-              color: Colors.orange,
-            ),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(35),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: const BorderSide(
-              color: Colors.orange,
-            ),
-            borderRadius: BorderRadius.circular(20),
-          ),
-        ),
-        validator: ((value) {
-          if (value!.isEmpty) {
-            if (hintText == "Enter Email") {
-              return "Enter Email Please";
-            }
-           
-          } 
-          return null;
-        }),
-      );
-    }
 
+  Widget myTextField(
+      String hintText, Icon preIcon, TextEditingController mycontroller) {
+    return TextFormField(
+      controller: mycontroller,
+      decoration: InputDecoration(
+        hintText: hintText,
+        hintStyle: const TextStyle(
+            fontSize: 16, fontFamily: "Rubik Medium", color: Colors.black),
+        fillColor: Colors.orange,
+        prefixIcon: preIcon,
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(
+            color: Colors.orange,
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(35),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(
+            color: Colors.orange,
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
+      validator: ((value) {
+        if (value!.isEmpty) {
+          if (hintText == "Enter Email") {
+            return "Enter Email Please";
+          }
+        }
+        return null;
+      }),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final formKey = GlobalKey<FormState>();
- 
 
     return SafeArea(
       child: Scaffold(
@@ -236,6 +234,13 @@ class _SignInState extends State<SignIn> {
               ),
 
               SizedBox(height: 20.h),
+              Text(
+                errorlabel,
+                style: const TextStyle(
+                    fontSize: 16,
+                    fontFamily: "Rubik Medium",
+                    color: Colors.red),
+              ),
               // Sign Up button
               isLoading
                   ? const Center(
