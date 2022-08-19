@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:charity/Screens/DonorScreens/add_more_items_details.dart';
 import 'package:charity/Screens/auth_screens/signin_screen.dart';
 import 'package:charity/controllers/add_donation_controller.dart';
@@ -5,6 +7,10 @@ import 'package:charity/services/firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import '../../provider/add_attachment.dart';
+import '../../provider/obsecure_pswd.dart';
 import '../../widgets/app_logo_text.dart';
 import '../../widgets/custom_drawer.dart';
 import '../../widgets/custom_text_field.dart';
@@ -16,6 +22,7 @@ class AddDonation extends StatefulWidget {
   @override
   State<AddDonation> createState() => _AddDonationState();
 }
+//noumana@devnatives.com
 
 class _AddDonationState extends State<AddDonation> {
   final _formKey = GlobalKey<FormState>();
@@ -33,30 +40,59 @@ class _AddDonationState extends State<AddDonation> {
       TextEditingController();
 
   @override
+  File? image;
+
+  Future pickmyImage() async {
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image == null) {
+        return;
+      }
+      final imageTemp = File(image.path);
+      setState(() {
+        this.image = imageTemp;
+      });
+    } catch (e) {
+      Get.snackbar("Message", e.toString());
+    }
+  }
+
   Widget build(BuildContext context) {
     Get.put(AddMoreList());
     // MY-LIST
     return SafeArea(
         child: Scaffold(
       appBar: AppBar(
-        title: const Text("Add Doantion"),
+        title: InkWell(
+            onTap: () {
+              pickmyImage();
+            },
+            child: const Text("Add Doantion")),
         actions: [
-          ElevatedButton(
-              onPressed: () async {
-                Firebaseauth firebaseauth = Firebaseauth();
-                String res = await firebaseauth.signOut();
-                if (res == 'success') {
-                  Get.to(const SignIn());
-                } else {
-                  return;
-                }
-              },
-              child: const Text("log out "))
+          image != null
+              ? Image.file(
+                  image!,
+                  width: 160,
+                  height: 150,
+                  fit: BoxFit.cover,
+                )
+              : ElevatedButton(
+                  onPressed: () async {
+                    Firebaseauth firebaseauth = Firebaseauth();
+                    String res = await firebaseauth.signOut();
+                    if (res == 'success') {
+                      Get.to(const SignIn());
+                    } else {
+                      return;
+                    }
+                  },
+                  child: const Text("log out "))
         ],
       ),
-      drawer: MyDrawer(),
+      drawer: MyDrawer(context),
+      resizeToAvoidBottomInset: false,
       body: SingleChildScrollView(
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         child: Container(
           margin: EdgeInsets.symmetric(horizontal: 24.w),
           child: Column(
@@ -69,45 +105,27 @@ class _AddDonationState extends State<AddDonation> {
               GetBuilder<AddMoreList>(builder: (value) {
                 return Column(
                   children: [
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          DataTable(columns: [
-                            DataColumn(
-                              label: Text('Title'),
-                            ),
-                            DataColumn(
-                              label: Text('Item Name'),
-                            ),
-                            DataColumn(
-                              label: Text('Quantity'),
-                            ),
-                            DataColumn(
-                              label: Text('Donation Desc'),
-                            ),
-                            DataColumn(
-                              label: Text('Location'),
-                            ),
-                            DataColumn(
-                              label: Text('Description'),
-                            ),
-                            DataColumn(
-                              label: Text('Attachment'),
-                            ),
-                            DataColumn(
-                              label: Text('Category'),
-                            ),
-                            DataColumn(
-                              label: Text('Edit'),
-                            ),
-                            DataColumn(
-                              label: Text('Delete'),
-                            )
-                          ], rows: []),
-                        ],
-                      ),
-                    ),
+                    // SingleChildScrollView(
+                    //   scrollDirection: Axis.horizontal,
+                    //   child: Row(
+                    //     children: [
+                    //       DataTable(columns: const [
+                    //         DataColumn(
+                    //           label: Text('Item Name'),
+                    //         ),
+                    //         DataColumn(
+                    //           label: Text('Quantity'),
+                    //         ),
+                    //         DataColumn(
+                    //           label: Text('Category'),
+                    //         ),
+                    //         DataColumn(
+                    //           label: Text('Action'),
+                    //         ),
+                    //       ], rows: const []),
+                    //     ],
+                    //   ),
+                    // ),
                     ListView.builder(
                       shrinkWrap: true,
                       scrollDirection: Axis.vertical,
@@ -120,22 +138,14 @@ class _AddDonationState extends State<AddDonation> {
                             child: Row(
                               children: [
                                 DataTable(columns: const [
-                                  DataColumn(label: Text("")),
-                                  DataColumn(label: Text("")),
-                                  DataColumn(label: Text("")),
-                                  DataColumn(label: Text("")),
-                                  DataColumn(label: Text("")),
-                                  DataColumn(label: Text("")),
-                                  DataColumn(label: Text("")),
-                                  DataColumn(label: Text("")),
-                                  DataColumn(label: Text("")),
-                                  DataColumn(label: Text("")),
+                                  DataColumn(label: Text("Name")),
+                                  DataColumn(label: Text("Qty")),
+                                  DataColumn(label: Text("cat")),
+                                  DataColumn(label: Text("Action")),
+
                                   // nice
                                 ], rows: [
                                   DataRow(cells: [
-                                    DataCell(
-                                      Text("${value.list[index]['title']}"),
-                                    ),
                                     DataCell(
                                       Text("${value.list[index]['itemName']}"),
                                     ),
@@ -143,138 +153,7 @@ class _AddDonationState extends State<AddDonation> {
                                       Text("${value.list[index]['quantity']}"),
                                     ),
                                     DataCell(
-                                      Text(
-                                          "${value.list[index]['donationDescription']}"),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                          "${value.list[index]['pickUpLocation']}"),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                          "${value.list[index]['description']}"),
-                                    ),
-                                    DataCell(
-                                      Text(
-                                          "${value.list[index]['attachment']}"),
-                                    ),
-                                    DataCell(
                                       Text("${value.list[index]['category']}"),
-                                    ),
-                                    DataCell(
-                                      IconButton(
-                                          onPressed: () {
-                                            final TextEditingController
-                                                _updateitemNameController =
-                                                TextEditingController(
-                                                    text: value.list[index]
-                                                        ['itemName']);
-                                            final TextEditingController
-                                                _updatecategoryController =
-                                                TextEditingController(
-                                                    text: value.list[index]
-                                                        ['category']);
-                                            final TextEditingController
-                                                _updatequantityController =
-                                                TextEditingController(
-                                                    text: value.list[index]
-                                                        ['quantity']);
-                                            final TextEditingController
-                                                _updateattachmentController =
-                                                TextEditingController(
-                                                    text: value.list[index]
-                                                        ['attachment']);
-                                            final TextEditingController
-                                                _updateaddItemDescriptionController =
-                                                TextEditingController(
-                                                    text: value.list[index]
-                                                        ['description']);
-                                            Get.defaultDialog(
-                                              title: '',
-                                              content: Expanded(
-                                                child: SingleChildScrollView(
-                                                  child: SizedBox(
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                            .size
-                                                            .width,
-                                                    child: Column(
-                                                      children: [
-                                                        AppLogoText(),
-                                                        SizedBox(
-                                                          height: 30.0.h,
-                                                        ),
-                                                        myTextField(
-                                                            "",
-                                                            Icon(Icons.person),
-                                                            _updateitemNameController),
-                                                        myTextField(
-                                                            "",
-                                                            Icon(Icons.person),
-                                                            _updatecategoryController),
-                                                        myTextField(
-                                                            "",
-                                                            Icon(Icons.person),
-                                                            _updatequantityController),
-                                                        myTextField(
-                                                            "",
-                                                            Icon(Icons.person),
-                                                            _updateattachmentController),
-                                                        myTextField(
-                                                            "",
-                                                            Icon(Icons.person),
-                                                            _updateaddItemDescriptionController),
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .spaceAround,
-                                                          children: [
-                                                            DefaultButton(
-                                                                text: "Update",
-                                                                onPressed: () {
-                                                                  value.list[index]
-                                                                          [
-                                                                          'itemName'] =
-                                                                      _updateitemNameController
-                                                                          .text;
-                                                                  value.list[index]
-                                                                          [
-                                                                          'category'] =
-                                                                      _updatecategoryController
-                                                                          .text;
-                                                                  value.list[index]
-                                                                          [
-                                                                          'quantity'] =
-                                                                      _updatequantityController
-                                                                          .text;
-                                                                  value.list[index]
-                                                                          [
-                                                                          'quantity'] =
-                                                                      _updatequantityController
-                                                                          .text;
-                                                                  value.list[index]
-                                                                          [
-                                                                          'attachment'] =
-                                                                      _updateattachmentController
-                                                                          .text;
-                                                                  value.list[index]
-                                                                          [
-                                                                          'description'] =
-                                                                      _updateaddItemDescriptionController
-                                                                          .text;
-                                                                }),
-                                                            DefaultButton(
-                                                                text: "Cancel"),
-                                                          ],
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          icon: Icon(Icons.edit)),
                                     ),
                                     DataCell(
                                       IconButton(
@@ -283,7 +162,7 @@ class _AddDonationState extends State<AddDonation> {
                                             value.list.removeAt(index);
                                             Get.snackbar("Message", "Deleted.");
                                           },
-                                          icon: Icon(Icons.delete)),
+                                          icon: const Icon(Icons.delete)),
                                     ),
                                   ])
                                 ]),
@@ -310,19 +189,23 @@ class _AddDonationState extends State<AddDonation> {
         key: _formKey,
         child: Column(
           children: [
-            myTextField(
-                "Enter title", Icon(Icons.person), _userTitleController),
-            myTextField("Enter Description", Icon(Icons.person),
+            myTextField("Donation Title", const Icon(Icons.title),
+                _userTitleController),
+            myTextField("Description", const Icon(Icons.description),
                 _userDonationDescriptionController),
             myTextField(
-                "Enter Address", Icon(Icons.person), _userAddressController),
+                "PickUp location",
+                const Icon(Icons.location_city_rounded),
+                _userAddressController),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 DefaultButton(
-                  text: "Add More Item",
+                  text: "Add Item",
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
+                      // to open a dialogue box
+
                       Get.defaultDialog(
                           title: '',
                           content: Expanded(
@@ -337,21 +220,75 @@ class _AddDonationState extends State<AddDonation> {
                                     SizedBox(
                                       height: 30.0.h,
                                     ),
-                                    myTextField("Item Name", Icon(Icons.add),
+                                    myTextField(
+                                        "Item Name",
+                                        const Icon(Icons.add),
                                         _itemNameController),
                                     myTextField(
                                         "Category",
-                                        Icon(Icons.category),
+                                        const Icon(Icons.category),
                                         _categoryController),
-                                    myTextField("Quantity", Icon(Icons.numbers),
-                                        _quantityController),
                                     myTextField(
-                                        "Attachment",
-                                        Icon(Icons.attachment),
-                                        _attachmentController),
+                                        "Quantity",
+                                        const Icon(Icons.numbers),
+                                        _quantityController),
+
+                                    // add attachement
+                                    Consumer<AddAttachment>(
+                                      builder: (context, value, child) =>
+                                          TextFormField(
+                                        controller: value.attachment,
+                                        decoration: InputDecoration(
+                                          hintText: "Attachment",
+                                          hintStyle: const TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: 'Rubik Medium',
+                                              color: Colors.black),
+                                          fillColor: Colors.orange,
+                                          prefixIcon: const Icon(
+                                            Icons.lock,
+                                            color: Colors.orange,
+                                          ),
+                                          // const Icon(Icons.visibility,color: Colors.orange,),
+                                          suffixIcon: IconButton(
+                                            icon: const Icon(
+                                              Icons.file_copy,
+                                              color: Colors.orange,
+                                            ),
+                                            onPressed: () {
+                                              value.addAttachment();
+                                            },
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                              color: Colors.orange,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(35),
+                                          ),
+                                          enabledBorder: OutlineInputBorder(
+                                            borderSide: const BorderSide(
+                                              color: Colors.orange,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                        ),
+                                        validator: (value) {
+                                          if (value!.isEmpty) {
+                                            return "Enter Password First";
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
                                     myTextField(
                                         "Description",
-                                        Icon(Icons.details),
+                                        const Icon(Icons.details),
                                         _itemDescriptionController),
                                     Row(
                                       mainAxisAlignment:
@@ -386,7 +323,7 @@ class _AddDonationState extends State<AddDonation> {
                                                 );
                                                 // NAVIGATING-TO-DETAIL-PAGE
 
-                                                Get.to(AddDonation());
+                                                Get.to(const AddDonation());
                                               },
                                             );
                                           },
@@ -425,7 +362,7 @@ class _AddDonationState extends State<AddDonation> {
                     : DefaultButton(
                         text: "Cancel",
                         onPressed: () async {
-                          Get.to(AddDonation());
+                          Get.to(const AddDonation());
                         },
                       ),
               ],

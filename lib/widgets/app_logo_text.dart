@@ -58,7 +58,7 @@ Column AppLogoText() {
 
       const Center(
           child: Text(
-        "Feeding someOne is the Highest \nReward You can Give to Humanity",
+        "Feeding some one is the highest \nReward you can give to humanity",
         textAlign: TextAlign.center,
         style: TextStyle(
             fontSize: 16, fontFamily: 'Rubik Regular', color: Colors.orange),

@@ -13,7 +13,7 @@ ElevatedButton DefaultButton({
         text,
         style: TextStyle(
           color: Colors.white,
-          fontSize: 14.sp,
+          fontSize: 10.sp,
         ),
       ),
     ),

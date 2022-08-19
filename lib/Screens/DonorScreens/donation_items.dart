@@ -42,7 +42,7 @@ class _DonationItemsState extends State<DonationItems> {
               child: const Text("log out "))
         ],
       ),
-      drawer: MyDrawer(),
+      drawer: MyDrawer(context),
       body: SingleChildScrollView(
         physics: BouncingScrollPhysics(),
         child: Container(
